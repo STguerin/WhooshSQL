@@ -21,7 +21,7 @@ Base = declarative_base()
 
 class Post(Base):
     __tablename__ = 'post'
-    __searchable__ = ['title', 'body'] #those field will be text field with StemmingAnalyzer
+    __searchable__ = ['title', 'body'] #those fields will be searchable text field with StemmingAnalyzer in whoosh
 
     id = Column(Integer, primary_key=True)
     title = Column(Text)
@@ -84,4 +84,11 @@ Post.whoosh.search('madrid').all()
 # ordered result based on whoosh score
 results = Post.whoosh.search_all_ordered('madrid') # love madrid title first in list
 results = Post.whoosh.search_all_ordered('barcelona') # love barcelona title first in list
+```
+
+### use a plugin? why not!
+Fuzzy queries are good for catching misspellings and similar words. The whoosh.qparser.FuzzyTermPlugin lets you search for “fuzzy” terms, that is, terms that don’t have to match exactly. The fuzzy term will match any similar term within a certain number of “edits” (character insertions, deletions, and/or transpositions – this is called the “Damerau-Levenshtein edit distance”).
+```python
+from whoosh.qparser import FuzzyTermPlugin
+Post.whoosh.search_all_ordered('baarcelonaa~2', plugin=FuzzyTermPlugin()) #this will return both results!
 ```

@@ -74,12 +74,12 @@ class Searcher:
         return ordered_results
 
     def _query_keys(self, query, limit=None, plugin=None):
-        qp = QueryParser(query, schema=self.subscription.schema)
+        parser = MultifieldParser(self.subscription.table.__searchable__, self.subscription.schema)
         if plugin:
-            qp.add_plugin(plugin)
+            parser.add_plugin(plugin)
 
         pk = self.subscription.primary_key
-        results = self.subscription.index.searcher().search(self.parser.parse(query), limit=limit)
+        results = self.subscription.index.searcher().search(parser.parse(query), limit=limit)
         keys = [x[pk.name] for x in results]
         return keys
 

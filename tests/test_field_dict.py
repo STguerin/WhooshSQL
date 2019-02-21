@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from whoosh.fields import Schema, TEXT, ID
 from whoosh.analysis import StemmingAnalyzer, NgramFilter
+from whoosh.qparser import FuzzyTermPlugin
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -55,11 +56,6 @@ class Tests(TestCase):
         self.assertEqual(len(res), 2)
 
     def test_ordered_search(self):
-        p1 = self.Post(title='love barcelona', body='it is the best city in the world even before madrid!')
-        p2 = self.Post(title='love madrid', body='it is the second best city in the world after barcelona!')
-        self.session.bulk_save_objects([p1, p2])
-        self.session.commit()
-
         results = self.Post.whoosh.search_all_ordered('madrid')
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].id, 2)
@@ -70,4 +66,8 @@ class Tests(TestCase):
         self.assertEqual(results[0].id, 1)
         self.assertEqual(results[1].id, 2)
 
-
+    def test_plugins_search(self):
+        results = self.Post.whoosh.search_all_ordered('baarcelonaa~2', plugin=FuzzyTermPlugin())
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0].id, 1)
+        self.assertEqual(results[1].id, 2)

@@ -51,3 +51,6 @@ Post.whoosh.search('madrid').all()
 # ordered result based on whoosh score
 results = Post.whoosh.search_all_ordered('madrid')
 results = Post.whoosh.search_all_ordered('barcelona')
+
+from whoosh.qparser import FuzzyTermPlugin
+Post.whoosh.search_all_ordered('baarcelonaa~2', plugin=FuzzyTermPlugin())
