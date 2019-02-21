@@ -1,7 +1,7 @@
 # WhooshSQL ![travis-ci](https://travis-ci.org/STguerin/WhooshSQL.svg?branch=master)
 Whoosh integration for SQL Alchemy based on Flask-WhooshAlchemy written by Karl Gyllstromk and WhooshAlchemy by Stefane Fermigier.
  
-Simply integrates all whoosh fields and search plugins for a more complete solution while keeping the simplicity of use to a minimum.
+Simply integrates all whoosh fields and search plugins for a more complete solution while keeping the simplicity of use.
 
 
 
@@ -74,7 +74,7 @@ class Post(Base):
     body = Column(Text)
 ```
 as you can see here, I added a field boost to TITLE so whoosh scores results that match in TITLE first and then
-in the BODY. Flask-Alchemy does not keep track of the score whoosh give to the results but WhooshSQL has that capability
+in the BODY.
 ```python
 # search return a sql alchemy query, so you can call all, delete etc... (this does not keep track of whoosh score)
 Post.whoosh.search('barcelona').all()  
