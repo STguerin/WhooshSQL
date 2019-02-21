@@ -35,15 +35,14 @@ class Post(Base):
 
 
 Base.metadata.create_all(engine)
+
+index_subscriber = IndexSubscriber(session=session, whoosh_base_path='index')
+index_subscriber.subscribe(Post)
+
 p1 = Post(title='love barcelona', body='it is the best city in the world even before madrid!')
 p2 = Post(title='love madrid', body='it is the second best city in the world after barcelona!')
-session.bulk_save_objects([p1, p2])
+session.add_all([p1, p2])
 session.commit()
-
-# you can also index from scratch
-index_subscriber = IndexSubscriber(session=session, whoosh_base_path='index')
-index_subscriber.subscribe(Post, index_from_scratch=True)
-
 
 # normal search, this does not keep whoosh score
 Post.whoosh.search('barcelona').all()

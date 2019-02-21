@@ -17,7 +17,7 @@ class Tests(TestCase):
 
     def setUp(self):
 
-        engine = create_engine('sqlite:///:memory:', echo=True)
+        engine = create_engine('sqlite:///:memory:', echo=False)
         self.session = Session(bind=engine)
 
         Base = declarative_base()
@@ -39,16 +39,15 @@ class Tests(TestCase):
         self.Post = Post
         Base.metadata.create_all(engine)
 
-        p1 = Post(title='love barcelona', body='it is the best city in the world even before madrid!')
-        p2 = Post(title='love madrid', body='it is the second best city in the world after barcelona!')
-        self.session.bulk_save_objects([p1, p2])
-        self.session.commit()
-
         self.index_manager = IndexSubscriber(session=self.session, whoosh_base_path='index')
         self.index_manager.subscribe(Post)
 
-    def test_unordered_search(self):
+        p1 = self.Post(title='love barcelona', body='it is the best city in the world even before madrid!')
+        p2 = self.Post(title='love madrid', body='it is the second best city in the world after barcelona!')
+        self.session.add_all([p1, p2])
+        self.session.commit()
 
+    def test_unordered_search(self):
         res = list(self.Post.whoosh.search(u'barcelona'))
         self.assertEqual(len(res), 2)
 
@@ -56,6 +55,11 @@ class Tests(TestCase):
         self.assertEqual(len(res), 2)
 
     def test_ordered_search(self):
+        p1 = self.Post(title='love barcelona', body='it is the best city in the world even before madrid!')
+        p2 = self.Post(title='love madrid', body='it is the second best city in the world after barcelona!')
+        self.session.bulk_save_objects([p1, p2])
+        self.session.commit()
+
         results = self.Post.whoosh.search_all_ordered('madrid')
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].id, 2)
@@ -65,3 +69,5 @@ class Tests(TestCase):
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].id, 1)
         self.assertEqual(results[1].id, 2)
+
+
