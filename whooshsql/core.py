@@ -61,7 +61,19 @@ class Searcher:
         self.session = session
         self.parser = MultifieldParser(subscription.table.__searchable__, self.subscription.schema)
 
-    def __call__(self, query, limit=None, plugin=None):
+    def search(self, query, limit=None, plugin=None):
+        keys = self._query_keys(query, limit, plugin)
+        return self.session.query(self.subscription.table).filter(self.subscription.primary_key.in_(keys))
+
+    def search_all_ordered(self, query, limit=None, plugin=None):
+        keys = self._query_keys(query, limit, plugin)
+        order = dict(zip(keys, range(len(keys))))
+        pk = self.subscription.primary_key
+        sql_results = self.session.query(self.subscription.table).filter(pk.in_(keys)).all()
+        ordered_results = sorted(sql_results, key=lambda x: order[str(getattr(x, pk.name))])
+        return ordered_results
+
+    def _query_keys(self, query, limit=None, plugin=None):
         qp = QueryParser(query, schema=self.subscription.schema)
         if plugin:
             qp.add_plugin(plugin)
@@ -69,7 +81,7 @@ class Searcher:
         pk = self.subscription.primary_key
         results = self.subscription.index.searcher().search(self.parser.parse(query), limit=limit)
         keys = [x[pk.name] for x in results]
-        return self.session.query(self.subscription.table).filter(pk.in_(keys))
+        return keys
 
 
 class IndexSubscriber:
@@ -88,7 +100,7 @@ class IndexSubscriber:
 
         subscription = Subscription(table=table, schema=schema, index=index)
         self.subscriptions[table.__tablename__] = subscription
-        setattr(table, 'search_query', Searcher(subscription, self.session))
+        setattr(table, 'whoosh', Searcher(subscription, self.session))
 
         if index_from_scratch:
             self.index_current_table_entries(table)

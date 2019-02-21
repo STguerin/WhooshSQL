@@ -46,17 +46,17 @@ class Tests(TestCase):
             return item
 
         a = add(u'good times were had by all')
-        res = list(self.Post.search_query(u'good'))
+        res = list(self.Post.whoosh.search(u'good'))
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0].id, a.id)
 
         b = add(u'good natured people are fun')
-        res = list(self.Post.search_query(u'good'))
+        res = list(self.Post.whoosh.search(u'good'))
         self.assertEqual(len(res), 2)
         self.assertEqual(res[0].id, a.id)
         self.assertEqual(res[1].id, b.id)
 
-        res = list(self.Post.search_query(u'people'))
+        res = list(self.Post.whoosh.search(u'people'))
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0].id, b.id)
 
@@ -64,7 +64,7 @@ class Tests(TestCase):
         self.session.delete(a)
         self.session.commit()
 
-        res = list(self.Post.search_query(u'good'))
+        res = list(self.Post.whoosh.search(u'good'))
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0].id, b.id)
 
@@ -73,18 +73,18 @@ class Tests(TestCase):
             created=datetime.date.today() - datetime.timedelta(2))
         self.session.add(a)
         self.session.commit()
-        res = list(self.Post.search_query(u'good'))
+        res = list(self.Post.whoosh.search(u'good'))
         self.assertEqual(len(res), 2)
 
         recent = list(
-            self.Post.search_query(u'good').filter(
+            self.Post.whoosh.search(u'good').filter(
                 self.Post.created >= datetime.date.today() - datetime.timedelta(
                     1)))
         self.assertEqual(len(recent), 1)
         self.assertEqual(recent[0].title, b.title)
 
         old = list(
-            self.Post.search_query(u'good').filter(
+            self.Post.whoosh.search(u'good').filter(
                 self.Post.created <= datetime.date.today() - datetime.timedelta(
                     1)))
         self.assertEqual(len(old), 1)
@@ -99,13 +99,13 @@ class Tests(TestCase):
             return item
 
         a = add(u'my title', u'my body')
-        res = list(self.Post.search_query(u'title'))
+        res = list(self.Post.whoosh.search(u'title'))
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0].id, a.id)
 
-        res = list(self.Post.search_query(u'body'))
+        res = list(self.Post.whoosh.search(u'body'))
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0].id, a.id)
 
-        res = list(self.Post.search_query(u'something'))
+        res = list(self.Post.whoosh.search(u'something'))
         self.assertEqual(len(res), 0)
