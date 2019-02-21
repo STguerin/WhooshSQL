@@ -5,7 +5,7 @@ Simply integrates all whoosh fields and search plugins for a more complete solut
 
 
 
-###Import sqlalchemy
+#### Import sqlalchemy
 ```python
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,7 +14,7 @@ from sqlalchemy.schema import Column
 from sqlalchemy.types import DateTime, Integer, Text, UnicodeText
 ```
 
-###setup a table
+### setup a table
 WhooshSQL has the common simple approach of Flask-WhooshAlchemy where you can add the searchable items as has a list:
 ```python
 Base = declarative_base()
@@ -28,7 +28,7 @@ class Post(Base):
     body = Column(Text)
 ```
 
-####setup a session and add records
+#### setup a session and add records
 ```python
 engine = create_engine('sqlite:///:memory:', echo=True)
 Base.metadata.create_all(engine)
@@ -40,7 +40,7 @@ session.add_all([p1, p2])
 session.commit()
 ```
 
-####now let's use WhooshSQL
+#### now let's use WhooshSQL
 ```python
 from whooshsql.core import IndexSubscriber
 
